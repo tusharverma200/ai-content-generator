@@ -1,3 +1,8 @@
+Here are the few glimple of this application:
+
+![image_url](https://github.com/tusharverma200/ai-content-generator/blob/ead00a0bc57e828db51f8d92391283ffa0797b7c/img1.png)
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
