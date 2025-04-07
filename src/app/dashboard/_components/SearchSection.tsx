@@ -1,7 +1,7 @@
 import { Search } from 'lucide-react'
 import React from 'react'
-
-function SearchSection({onSearchInput}:any) {
+type SearchQuery = string; 
+function SearchSection({onSearchInput}:{onSearchInput:(value:SearchQuery)=>void}) {
   return (
     <div className='p-10 bg-gradient-to-br from-indigo-500 via-indigo-700 to-blue-600 flex flex-col justify-center items-center text-white ' >
 <h2 className='text-bold text-3xl ' >Browse All Templates</h2>

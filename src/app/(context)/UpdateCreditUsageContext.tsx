@@ -1,4 +1,5 @@
-import { createContext } from "react"
+import { createContext } from "react";
 
+type UpdateCreditUsageType = (usedCredits: number) => void;
 
-export const UpdateCreditUsageContext = createContext<any>(null)
+export const UpdateCreditUsageContext = createContext<UpdateCreditUsageType | null>(null);
