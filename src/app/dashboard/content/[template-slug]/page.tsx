@@ -14,21 +14,19 @@ import { AiOutput } from "@/utils/schema";
 import { useUser } from "@clerk/nextjs";
 import { useParams } from 'next/navigation'
 import { TotalUsageContext } from "@/app/(context)/TotalUsageContext";
-import { Alert } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
-import { UserSubscriptionContext } from "@/app/(context)/UserSubscriptionContext";
 import { UpdateCreditUsageContext } from "@/app/(context)/UpdateCreditUsageContext";
-export default function page(){
+export default function Home(){
   const params = useParams()
   console.log('params', params['template-slug'])
     const selectedTemplate:TEMPLATE|undefined=Templates?.find((item)=>item.slug===params['template-slug'])
     const [loading, setLoading]= useState(false)
     const [aiOutput, setAiOutput] = useState<string>('')
     const {user} = useUser();
-    const {totalUsage, setTotalUsage} = useContext(TotalUsageContext)
-    const {userSubscription, setUserSubscription} = useContext(UserSubscriptionContext)
+    const {totalUsage} = useContext(TotalUsageContext)
+
     const router = useRouter()
-    const {updateCreditUsage, setUpdateCreditUsage}=useContext(UpdateCreditUsageContext);
+    const {setUpdateCreditUsage}=useContext(UpdateCreditUsageContext);
 
     const generateAIContent=async(formData:any)=>{
 //totalUsage>=100000&&!userSubscribe

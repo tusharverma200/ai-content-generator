@@ -1,6 +1,6 @@
 'use client'
 
-import { FileClock, History, Home, Settings, Wallet, WalletCards } from 'lucide-react'
+import { FileClock, Home, Settings, WalletCards } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import React from 'react'

@@ -7,13 +7,13 @@ import { TotalUsageContext } from '../(context)/TotalUsageContext';
 import { UserSubscriptionContext } from '../(context)/UserSubscriptionContext';
 import { UpdateCreditUsageContext } from '../(context)/UpdateCreditUsageContext';
 
-function layout({
+function Layout({
     children,
   }: Readonly<{
     children: React.ReactNode;
   }>) {
 
-    const [totalUsage, setTotalUsage] = useState<Number>(0)
+    const [totalUsage, setTotalUsage] = useState<number>(0)
     const [userSubscription, setUserSubscription] = useState<boolean>(false)
     const[updateCreditUsage, setUpdateCreditUsage] = useState<any>()
   return (
@@ -34,4 +34,4 @@ function layout({
   )
 }
 
-export default layout
+export default Layout

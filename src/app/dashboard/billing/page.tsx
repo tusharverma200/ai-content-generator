@@ -67,7 +67,7 @@ export default function Billing() {
         }
       },
     };
-    //@ts-ignore
+    //@ts-expect-error
     const rzp = new window.Razorpay(options);
     rzp.open();
   };

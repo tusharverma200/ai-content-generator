@@ -1,4 +1,4 @@
-export default [
+const data = [
     {
         name:'Blog Title',
         desc:'An AI tool that generates blog titles based on your blog topic.',
@@ -160,3 +160,5 @@ export default [
         ]
     }
 ];
+
+export default data;

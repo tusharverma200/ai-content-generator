@@ -4,7 +4,7 @@ import { UpdateCreditUsageContext } from '@/app/(context)/UpdateCreditUsageConte
 import { UserSubscriptionContext } from '@/app/(context)/UserSubscriptionContext'
 import { Button } from '@/components/ui/button'
 import { db } from '@/utils/db'
-import { AiOutput, UserSubscription } from '@/utils/schema'
+import { AiOutput} from '@/utils/schema'
 import { useUser } from '@clerk/nextjs'
 import { eq } from 'drizzle-orm'
 import React, { useContext, useEffect, useState } from 'react'
@@ -14,8 +14,8 @@ function UsageTrack() {
     const {user} = useUser()
     const {totalUsage, setTotalUsage} = useContext(TotalUsageContext);
     const {userSubscription, setUserSubscription}=useContext(UserSubscriptionContext)
-    const [maxWords, setMaxWords]= useState(10000)
-    const {updateCreditUsage, setUpdateCreditUsage} = useContext(UpdateCreditUsageContext)
+    const [ setMaxWords]= useState(10000)
+    const {updateCreditUsage} = useContext(UpdateCreditUsageContext)
 
     useEffect(()=>{
      user&&GetData()

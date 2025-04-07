@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     console.log("Entered API route");
 

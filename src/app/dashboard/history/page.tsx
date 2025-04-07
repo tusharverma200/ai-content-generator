@@ -1,10 +1,8 @@
 "use client"
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -22,32 +20,6 @@ import { useUser } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
 import { useEffect, useState } from "react";
 
-const historyData = [
-  {
-    id: 1,
-    template: "Write Code",
-    icon: "\u{1F4BB}",
-    response: "```javascript import React, { useState } from 'react'; ...",
-    date: "23/06/2024",
-    words: 2321,
-  },
-  {
-    id: 2,
-    template: "Instagram Hash Tag Generator",
-    icon: "\u{1F4F7}",
-    response: "#fitness #gym #workout #gymlife #fitnessmotivation ...",
-    date: "23/06/2024",
-    words: 164,
-  },
-  {
-    id: 3,
-    template: "Blog Topic Ideas",
-    icon: "\u{1F4DA}",
-    response: "- **5 Effective Exercises for a Stronger Core** - **The Ultimate Guide...",
-    date: "23/06/2024",
-    words: 228,
-  },
-];
 
 export default function Page() {
 
@@ -57,7 +29,7 @@ export default function Page() {
 
       user&&GetData()
       
-     }, [])
+     }, [user])
 
      const GetData=async()=>{
       const result = await db.select().from(AiOutput).where(eq(AiOutput.createdBy,user.user?.primaryEmailAddress?.emailAddress ))
