@@ -16,9 +16,25 @@ import { UserSubscription } from "@/utils/schema";
 import { db } from "@/utils/db";
 import { useUser } from "@clerk/nextjs";
 
+// Define RazorpayResponse interface
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_subscription_id?: string;
+  razorpay_signature?: string;
+  [key: string]: any; // For any other properties that might be returned
+}
+
+// Define Razorpay window interface
+declare global {
+  interface Window {
+    Razorpay?: any; // This is unavoidable as Razorpay doesn't provide TypeScript types
+  }
+}
+
 export default function Billing() {
   const [loading, setLoading] = useState(false);
-  const user = useUser()
+  const { user } = useUser();
+
   // Load Razorpay script dynamically
   useEffect(() => {
     const loadRazorpayScript = () => {
@@ -59,37 +75,38 @@ export default function Billing() {
       subscription_id: subId,
       name: "AI Content Generator",
       description: "Monthly Subscription",
-      handler: async (resp: any) => {
+      handler: async (resp: RazorpayResponse) => {
         console.log(resp);
         setLoading(false);
-        if(resp){
-            SaveSubscription(resp.razorpay_payment_id)
+        if (resp) {
+          SaveSubscription(resp.razorpay_payment_id);
         }
       },
     };
-    //@ts-expect-error
+
+    // @ts-expect-error - Razorpay doesn't provide TypeScript types, so we need to use the window global
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
 
-  const SaveSubscription =async(paymentId:string)=>{
-const result = await db.insert(UserSubscription)
-.values({
-email:user.user?.primaryEmailAddress?.emailAddress,
-userName:user.user?.fullName,
-active:true,
-paymentId:paymentId,
-joinDate:Date.now()
-})
-if(result){
-    window.location.reload();
-}
+  const SaveSubscription = async (paymentId: string) => {
+    const result = await db.insert(UserSubscription)
+      .values({
+        email: user?.primaryEmailAddress?.emailAddress || "",
+        userName: user?.fullName || "",
+        active: true,
+        paymentId: paymentId,
+        joinDate: Date.now()
+      });
 
-  }
+    if (result) {
+      window.location.reload();
+    }
+  };
 
   return (
     <div className="container py-24 lg:py-2 bg-gray-100">
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+      {/* Remove synchronous script tag, it's already loaded dynamically in useEffect */}
       <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
           Pricing
@@ -99,80 +116,82 @@ if(result){
         </p>
       </div>
 
-      <div className=" mt-2 mx-12 grid sm:grid-cols-1 lg:grid-cols-2 gap-10 lg:items-center">
-          {/* Card */}
-          <Card>
-            <CardHeader className="text-center pb-2">
-              <CardTitle className="mb-7">Free</CardTitle>
-              <span className="font-bold text-5xl">Free</span>
-            </CardHeader>
-            <CardDescription className="text-center">
-              Forever free
-            </CardDescription>
-            <CardContent>
-              <ul className="mt-7 space-y-2.5 text-sm">
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">10,000 Words/month</span>
-                </li>
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">50+ Content Templates</span>
-                </li>
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Unlimited Download and Copy</span>
-                </li>
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">1 Month of history</span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" variant={"outline"}>
-               Currently active plan
-              </Button>
-            </CardFooter>
-          </Card>
-          {/* End Card */}
-          {/* Card */}
-          <Card className="border-primary">
-            <CardHeader className="text-center pb-2">
-              <Badge className="uppercase w-max self-center mb-3">
-                Most popular
-              </Badge>
-              <CardTitle className="!mb-7">Monthly</CardTitle>
-              <span className="font-bold text-5xl">$1</span>
-            </CardHeader>
-            <CardDescription className="text-center w-11/12 mx-auto">
-              All the basics for starting your content creation journey
-            </CardDescription>
-            <CardContent>
-              <ul className="mt-7 space-y-2.5 text-sm">
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">1,00,000 words/month</span>
-                </li>
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">50+ Content Templates</span>
-                </li>
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">Unlimited Download and Copy</span>
-                </li>
-                <li className="flex space-x-2">
-                  <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
-                  <span className="text-muted-foreground">1 Year of history</span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button disabled={loading} onClick={createSubscription} className="w-full gap-2">{loading&&<Loader2Icon className="animate-spin" />}Get Started</Button>
-            </CardFooter>
-          </Card>
-          {/* End Card */}
+      <div className="mt-2 mx-12 grid sm:grid-cols-1 lg:grid-cols-2 gap-10 lg:items-center">
+        {/* Card */}
+        <Card>
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="mb-7">Free</CardTitle>
+            <span className="font-bold text-5xl">Free</span>
+          </CardHeader>
+          <CardDescription className="text-center">
+            Forever free
+          </CardDescription>
+          <CardContent>
+            <ul className="mt-7 space-y-2.5 text-sm">
+              <li className="flex space-x-2">
+                <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
+                <span className="text-muted-foreground">10,000 Words/month</span>
+              </li>
+              <li className="flex space-x-2">
+                <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
+                <span className="text-muted-foreground">50+ Content Templates</span>
+              </li>
+              <li className="flex space-x-2">
+                <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
+                <span className="text-muted-foreground">Unlimited Download and Copy</span>
+              </li>
+              <li className="flex space-x-2">
+                <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
+                <span className="text-muted-foreground">1 Month of history</span>
+              </li>
+            </ul>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full" variant={"outline"}>
+              Currently active plan
+            </Button>
+          </CardFooter>
+        </Card>
+        {/* End Card */}
+        {/* Card */}
+        <Card className="border-primary">
+          <CardHeader className="text-center pb-2">
+            <Badge className="uppercase w-max self-center mb-3">
+              Most popular
+            </Badge>
+            <CardTitle className="!mb-7">Monthly</CardTitle>
+            <span className="font-bold text-5xl">$1</span>
+          </CardHeader>
+          <CardDescription className="text-center w-11/12 mx-auto">
+            All the basics for starting your content creation journey
+          </CardDescription>
+          <CardContent>
+            <ul className="mt-7 space-y-2.5 text-sm">
+              <li className="flex space-x-2">
+                <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
+                <span className="text-muted-foreground">1,00,000 words/month</span>
+              </li>
+              <li className="flex space-x-2">
+                <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
+                <span className="text-muted-foreground">50+ Content Templates</span>
+              </li>
+              <li className="flex space-x-2">
+                <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
+                <span className="text-muted-foreground">Unlimited Download and Copy</span>
+              </li>
+              <li className="flex space-x-2">
+                <CheckIcon className="flex-shrink-0 mt-0.5 h-4 w-4" />
+                <span className="text-muted-foreground">1 Year of history</span>
+              </li>
+            </ul>
+          </CardContent>
+          <CardFooter>
+            <Button disabled={loading} onClick={createSubscription} className="w-full gap-2">
+              {loading && <Loader2Icon className="animate-spin" />}Get Started
+            </Button>
+          </CardFooter>
+        </Card>
+        {/* End Card */}
       </div>
     </div>
   );
