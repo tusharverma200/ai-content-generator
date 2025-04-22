@@ -27,7 +27,10 @@ export default function Page() {
   const user = useUser()
   useEffect(() => {
 
-    user && GetData()
+    if (user) {
+      GetData()
+    }
+
 
   }, [user])
 
