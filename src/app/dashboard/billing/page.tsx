@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { CheckIcon } from "lucide-react";
 import React from "react";
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs";
 
 export default function Billing() {
 
