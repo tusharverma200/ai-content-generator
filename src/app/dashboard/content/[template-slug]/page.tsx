@@ -16,72 +16,77 @@ import { useParams } from 'next/navigation'
 import { TotalUsageContext } from "@/app/(context)/TotalUsageContext";
 import { useRouter } from "next/navigation";
 import { UpdateCreditUsageContext } from "@/app/(context)/UpdateCreditUsageContext";
-export default function Home(){
-  const params = useParams()
-  console.log('params', params['template-slug'])
-    const selectedTemplate:TEMPLATE|undefined=Templates?.find((item)=>item.slug===params['template-slug'])
-    const [loading, setLoading]= useState(false)
-    const [aiOutput, setAiOutput] = useState<string>('')
-    const {user} = useUser();
-    const {totalUsage} = useContext(TotalUsageContext)
 
-    const router = useRouter()
-    const {setUpdateCreditUsage}=useContext(UpdateCreditUsageContext);
+// Define a type for form data
+interface FormDataType {
+  [key: string]: string;
+}
 
-    const generateAIContent=async(formData:any)=>{
-//totalUsage>=100000&&!userSubscribe
-      if(totalUsage>=100000){
-        console.log("total credits finished")
-router.push("/dashboard/billing")
-        // <Alert/>
-        return ;
-      }
-      setLoading(true)
-      console.log(formData)
-   //   console.log(chatSession)
-      const selectedPrompt = selectedTemplate?.aiPrompt
-      const finalAIPrompt = JSON.stringify(formData)+", "+selectedPrompt;
-    
-      const result = await chatSession.sendMessage(finalAIPrompt)
-      setAiOutput(result.response.text())
-      console.log("user", user  )
-      await SaveInDb(formData, selectedTemplate?.slug, result.response.text())
-      console.log(typeof (result.response.text()))
-      setLoading(false)
-      setUpdateCreditUsage(Date.now())
+export default function Home() {
+  const params = useParams();
+  const templateSlug = params['template-slug'] as string;
 
+  console.log('params', templateSlug);
+  const selectedTemplate: TEMPLATE | undefined = Templates?.find((item) => item.slug === templateSlug);
+  const [loading, setLoading] = useState(false);
+  const [aiOutput, setAiOutput] = useState<string>('');
+  const { user } = useUser();
+  const { totalUsage } = useContext(TotalUsageContext);
+
+  const router = useRouter();
+  const { setUpdateCreditUsage } = useContext(UpdateCreditUsageContext);
+
+  const generateAIContent = async (formData: FormDataType) => {
+    //totalUsage>=100000&&!userSubscribe
+    if (totalUsage >= 100000) {
+      console.log("total credits finished");
+      router.push("/dashboard/billing");
+      // <Alert/>
+      return;
     }
+    setLoading(true);
+    console.log(formData);
+    //console.log(chatSession);
+    const selectedPrompt = selectedTemplate?.aiPrompt;
+    const finalAIPrompt = JSON.stringify(formData) + ", " + selectedPrompt;
 
-   const SaveInDb=async(formData:any, slug:any, output:string)=>{
+    const result = await chatSession.sendMessage(finalAIPrompt);
+    setAiOutput(result.response.text());
+    console.log("user", user);
+    await SaveInDb(formData, selectedTemplate?.slug, result.response.text());
+    console.log(typeof (result.response.text()));
+    setLoading(false);
+    setUpdateCreditUsage(Date.now());
+  }
+
+  const SaveInDb = async (formData: FormDataType, slug: string | undefined, output: string) => {
     const result = await db.insert(AiOutput).values({
-      formData:formData,
-      templateSlug:slug,
-      aiResponse:output,
-      createdBy:user?.primaryEmailAddress?.emailAddress,
-      createdAt:Date.now() 
-    })
+      formData: formData,
+      templateSlug: slug,
+      aiResponse: output,
+      createdBy: user?.primaryEmailAddress?.emailAddress,
+      createdAt: Date.now()
+    });
 
-    console.log(result)
-
-   }
+    console.log(result);
+  }
 
   return (
     <div className="bg-gray-100">
+      <Link href={'/dashboard'}>
+        <Button className="bg-indigo-600 mx-5 my-4"><ArrowLeft />Back</Button>
+      </Link>
 
-<Link href={'/dashboard'} >
-<Button className="bg-indigo-600 mx-5 my-4 " ><ArrowLeft/>Back</Button>
-</Link>
-
-    <div className="  grid grid-cols-1 md:grid-cols-3 gap-10 p-5">
-      <FormSection selectedTemplate = {selectedTemplate} loading={loading} userFormInput={(v:any)=>generateAIContent(v)} />
-      <div className="col-span-2">
-      <OutputSection aiOutput={aiOutput} />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10 p-5">
+        <FormSection
+          selectedTemplate={selectedTemplate}
+          loading={loading}
+          userFormInput={(formData: FormDataType) => generateAIContent(formData)}
+        />
+        <div className="col-span-2">
+          <OutputSection aiOutput={aiOutput} />
+        </div>
       </div>
-     
-    </div>
-
     </div>
   );
 };
-
-
