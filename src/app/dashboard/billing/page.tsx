@@ -14,7 +14,7 @@ import React from "react";
 import { useUser } from "@clerk/nextjs";
 
 export default function Billing() {
-  const { user } = useUser();
+
 
   return (
     <div className="container py-24 lg:py-2 bg-gray-100">

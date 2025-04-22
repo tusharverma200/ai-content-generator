@@ -1,5 +1,4 @@
-'use client'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react';
 import { Editor } from '@toast-ui/react-editor';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import { Button } from '@/components/ui/button';
@@ -10,39 +9,40 @@ interface Props {
 }
 
 function OutputSection({ aiOutput }: Props) {
-  
-  const editorRef:any = useRef(null);
+  const editorRef = useRef<Editor | null>(null);
+
   useEffect(() => {
-    if (editorRef.current) {
-      const editorInstance = editorRef.current.getInstance();
-      editorInstance.setMarkdown(aiOutput || ''); // ✅ Ensure aiOutput is a string
-    }
+    const editorInstance = editorRef.current?.getInstance();
+    editorInstance?.setMarkdown(aiOutput || '');
   }, [aiOutput]);
 
   return (
-    <div className='bg-white shadow-lg border' >
+    <div className="bg-white shadow-lg border">
+      <div className="flex justify-between items-center p-5">
+        <h2>Your Result</h2>
+        <Button
+          className="bg-indigo-600 hover:bg-indigo-500"
+          onClick={() => {
+            navigator.clipboard
+              .writeText(aiOutput)
+              .then(() => alert('Text copied!'))
+              .catch(() => alert('Failed to copy!'));
+          }}
+        >
+          <Copy /> Copy
+        </Button>
+      </div>
 
-<div className='flex justify-between items-center p-5 '>
-  <h2>Your Result</h2>
-  <Button className='bg-indigo-600 hover:bg-indigo-500' 
-  onClick={() => {
-    navigator.clipboard.writeText(aiOutput)
-      .then(() => alert("Text copied!")) // Show alert after successful copy
-      .catch(() => alert("Failed to copy!")); // Handle errors
-  }}
-  ><Copy/>Copy</Button>
-  </div>
-
-        <Editor
+      <Editor
         ref={editorRef}
-    initialValue='It will be displayed here'
-    previewStyle="vertical"
-    height="350px"
-    initialEditType="wysiwyg"
-    useCommandShortcut={true}
-  />
+        initialValue="It will be displayed here"
+        previewStyle="vertical"
+        height="350px"
+        initialEditType="wysiwyg"
+        useCommandShortcut={true}
+      />
     </div>
-  )
+  );
 }
 
-export default OutputSection
+export default OutputSection;
