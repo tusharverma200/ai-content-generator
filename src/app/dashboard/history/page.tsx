@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,19 +23,19 @@ import { useEffect, useState } from "react";
 
 export default function Page() {
 
-   const [historyData, setHistoryData] = useState([])
+  const [historyData, setHistoryData] = useState([])
   const user = useUser()
-     useEffect(()=>{
+  useEffect(() => {
 
-      user&&GetData()
-      
-     }, [user])
+    user && GetData()
 
-     const GetData=async()=>{
-      const result = await db.select().from(AiOutput).where(eq(AiOutput.createdBy,user.user?.primaryEmailAddress?.emailAddress ))
-      console.log('result', result)
-      setHistoryData(result)
-     }
+  }, [user])
+
+  const GetData = async () => {
+    const result = await db.select().from(AiOutput).where(eq(AiOutput.createdBy, user.user?.primaryEmailAddress?.emailAddress))
+    console.log('result', result)
+    setHistoryData(result)
+  }
 
 
   return (
@@ -65,24 +65,24 @@ export default function Page() {
               {historyData.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="flex items-center gap-2">
-                 
-                    { JSON.parse(item.formData).topic}
+
+                    {JSON.parse(item.formData).topic}
                   </TableCell>
                   <TableCell className="truncate max-w-sm">{item.aiResponse}</TableCell>
                   <TableCell>{new Date(Number(item.createdAt)).toLocaleString()}</TableCell>
                   <TableCell>{item.aiResponse.trim().split(/\s+/).length}</TableCell>
                   <TableCell>
-                  <Button
-  onClick={() => {
-    navigator.clipboard.writeText(JSON.stringify(item))
-      .then(() => alert("Text copied!")) // Show alert after successful copy
-      .catch(() => alert("Failed to copy!")); // Handle errors
-  }}
-  variant="link"
-  className="text-indigo-600"
->
-  Copy
-</Button>
+                    <Button
+                      onClick={() => {
+                        navigator.clipboard.writeText(JSON.stringify(item))
+                          .then(() => alert("Text copied!")) // Show alert after successful copy
+                          .catch(() => alert("Failed to copy!")); // Handle errors
+                      }}
+                      variant="link"
+                      className="text-indigo-600"
+                    >
+                      Copy
+                    </Button>
 
                   </TableCell>
                 </TableRow>
