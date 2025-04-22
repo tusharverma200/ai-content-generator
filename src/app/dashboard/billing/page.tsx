@@ -1,7 +1,6 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import {
   Card,
   CardContent,
@@ -10,103 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CheckIcon, Loader2Icon } from "lucide-react";
-import React, { useState, useEffect } from "react";
-import { UserSubscription } from "@/utils/schema";
-import { db } from "@/utils/db";
+import { CheckIcon } from "lucide-react";
+import React from "react";
 import { useUser } from "@clerk/nextjs";
 
-// Define RazorpayResponse interface
-interface RazorpayResponse {
-  razorpay_payment_id: string;
-  razorpay_subscription_id?: string;
-  razorpay_signature?: string;
-  [key: string]: any; // For any other properties that might be returned
-}
-
-// Define Razorpay window interface
-declare global {
-  interface Window {
-    Razorpay?: any; // This is unavoidable as Razorpay doesn't provide TypeScript types
-  }
-}
-
 export default function Billing() {
-  const [loading, setLoading] = useState(false);
   const { user } = useUser();
-
-  // Load Razorpay script dynamically
-  useEffect(() => {
-    const loadRazorpayScript = () => {
-      if (!window.Razorpay) {
-        const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
-        script.async = true;
-        script.onload = () => console.log("Razorpay script loaded");
-        document.body.appendChild(script);
-      }
-    };
-
-    loadRazorpayScript();
-  }, []);
-
-  const createSubscription = () => {
-    setLoading(true);
-    axios
-      .post("/api/create-subscription", {})
-      .then((res) => {
-        console.log(res.data);
-        onPayment(res.data.id);
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-      });
-  };
-
-  const onPayment = (subId: string) => {
-    if (!window.Razorpay) {
-      console.error("Razorpay SDK not loaded");
-      return;
-    }
-
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      subscription_id: subId,
-      name: "AI Content Generator",
-      description: "Monthly Subscription",
-      handler: async (resp: RazorpayResponse) => {
-        console.log(resp);
-        setLoading(false);
-        if (resp) {
-          SaveSubscription(resp.razorpay_payment_id);
-        }
-      },
-    };
-
-    // @ts-expect-error - Razorpay doesn't provide TypeScript types, so we need to use the window global
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  };
-
-  const SaveSubscription = async (paymentId: string) => {
-    const result = await db.insert(UserSubscription)
-      .values({
-        email: user?.primaryEmailAddress?.emailAddress || "",
-        userName: user?.fullName || "",
-        active: true,
-        paymentId: paymentId,
-        joinDate: Date.now()
-      });
-
-    if (result) {
-      window.location.reload();
-    }
-  };
 
   return (
     <div className="container py-24 lg:py-2 bg-gray-100">
-      {/* Remove synchronous script tag, it's already loaded dynamically in useEffect */}
       <div className="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
           Pricing
@@ -186,8 +97,8 @@ export default function Billing() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button disabled={loading} onClick={createSubscription} className="w-full gap-2">
-              {loading && <Loader2Icon className="animate-spin" />}Get Started
+            <Button className="w-full">
+              Get Started
             </Button>
           </CardFooter>
         </Card>
