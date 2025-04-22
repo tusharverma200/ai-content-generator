@@ -53,7 +53,7 @@ function UsageTrack() {
     }
   }
 
-  const GetTotalUsage = (result: any) => {
+  const GetTotalUsage = (result: object[]) => {
 
     let total: number = 0
     result.forEach((element: object) => {
