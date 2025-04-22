@@ -18,13 +18,22 @@ function UsageTrack() {
   const { updateCreditUsage } = useContext(UpdateCreditUsageContext)
 
   useEffect(() => {
-    user && GetData()
+
+    if (user) {
+      GetData()
+    }
   }, [updateCreditUsage])
 
   useEffect(() => {
     console.log('user', user)
-    user && GetData()
-    user && IsUserSubscribe()
+    if (user) {
+      GetData()
+    }
+
+    if (user) {
+      IsUserSubscribe()
+    }
+
   }, [user, totalUsage])
 
   const GetData = async () => {
@@ -45,7 +54,7 @@ function UsageTrack() {
   }
 
   const GetTotalUsage = (result: any) => {
-    
+
     let total: number = 0
     result.forEach((element: any) => {
       total = total + Number(element.aiResponse?.length)
