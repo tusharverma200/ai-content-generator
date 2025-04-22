@@ -1,5 +1,3 @@
-import { createContext } from "react";
+import { createContext, Context } from "react";
 
-
-
-export const TotalUsageContext=createContext<number>(0)
+export const TotalUsageContext: Context<number> = createContext<number>(0);
